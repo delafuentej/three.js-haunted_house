@@ -353,16 +353,32 @@ for(let i = 0; i < 30; i++){
 
 /**
  * Lights
- */
+ */  //color '#86cdff' => moon light
 // Ambient light
-const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
-scene.add(ambientLight)
+const ambientLight = new THREE.AmbientLight('#86cdff', 0.275);
+scene.add(ambientLight);
 
 // Directional light
-const directionalLight = new THREE.DirectionalLight('#ffffff', 1.5)
+const directionalLight = new THREE.DirectionalLight('#86cdff', 1);
 directionalLight.position.set(3, 2, -8)
-scene.add(directionalLight)
+scene.add(directionalLight);
+//having th directionalLight behind the house puts the front part in the shade
+// need to add  a door light using pointLight
+// DOOR LIGHT
+const doorLight = new THREE.PointLight('#ff7d46', 5);
+// doorLight.position.y += houseMeasurements.height;
+// doorLight.position.z += houseMeasurements.depth / 2;
+doorLight.position.set(0,2.2, 2.5);
+house.add(doorLight);
 
+/**
+ * Ghosts Section - PointLights
+ */
+const ghost1 = new THREE.PointLight('#8800ff', 6);
+const ghost2 = new THREE.PointLight('#ff0088', 6);
+const ghost3 = new THREE.PointLight('#008000', 6);
+
+scene.add(ghost1, ghost2, ghost3);
 /**
  * Sizes
  */
@@ -410,6 +426,59 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
+ * Shadows- Ghost PointLights
+ */
+//Renderer
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// Cast and receive shadows- Activate the shadows on the directionalLight and the three
+// ghost lights by setting their castShadow to true
+directionalLight.castShadow = true;
+ghost1.castShadow = true;
+ghost2.castShadow = true;
+ghost3.castShadow = true;
+//Go through each object (walls, roof, floor) and decide if it needs to cast shadows
+// and/or receive shadows- no shadows to graves
+walls.castShadow = true;
+walls.receiveShadow = true;
+roof.castShadow = true;
+floor.receiveShadow = true;
+
+for(const grave of graves.children) {
+    grave.castShadow = true;
+    grave.receiveShadow = true;
+}
+
+// a good thing to better performance the shadows => create a camera helper
+// on the light.shadowMap.camera  and then tweak the camera until it's perfect
+//Mapping => object:  not cut shadows : 
+//1.reduce the mapSize to 256 
+//2. SeT the top, right, bottom an left to 8 & -8
+//3. Set the near to 1
+directionalLight.shadow.mapSize.width = 256;
+directionalLight.shadow.mapSize.height = 256;
+directionalLight.shadow.camera.top = 8;
+directionalLight.shadow.camera.right = 8;
+directionalLight.shadow.camera.bottom = - 8;
+directionalLight.shadow.camera.left = - 8;
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 20;
+
+//to do the same above for the ghosts
+
+ghost1.shadow.mapSize.width = 256;
+ghost1.shadow.mapSize.height = 256;
+ghost1.shadow.camera.far = 10;
+
+ghost2.shadow.mapSize.width = 256;
+ghost2.shadow.mapSize.height = 256;
+ghost2.shadow.camera.far = 10;
+
+ghost3.shadow.mapSize.width = 256;
+ghost3.shadow.mapSize.height = 256;
+ghost3.shadow.camera.far = 10;
+
+/**
  * Animate
  */
 const timer = new Timer()
@@ -418,16 +487,32 @@ const tick = () =>
 {
     // Timer
     timer.update()
-    const elapsedTime = timer.getElapsed()
+    const elapsedTime = timer.getElapsed();
 
+    //Ghosts
+    const ghost1Angle = elapsedTime * 0.5;
+    ghost1.position.x = Math.cos(ghost1Angle) * 4;
+    ghost1.position.z = Math.sin(ghost1Angle) * 4;
+    ghost1.position.y = Math.sin(ghost1Angle) * Math.sin(ghost1Angle * 2.34) * Math.sin(ghost1Angle * 3.45);
+
+    const ghost2Angle =  - elapsedTime * 0.38;
+    ghost2.position.x = Math.cos(ghost2Angle) * 5;
+    ghost2.position.z = Math.sin(ghost2Angle) * 5;
+    ghost2.position.y =  Math.sin(ghost2Angle) * Math.sin(ghost2Angle * 2.34) * Math.sin(ghost2Angle * 3.45);
+
+
+    const ghost3Angle =  elapsedTime * 0.23;
+    ghost3.position.x = Math.cos(ghost3Angle) * 6;
+    ghost3.position.z = Math.sin(ghost3Angle) * 6;
+    ghost3.position.y = Math.sin(ghost1Angle) * Math.sin(ghost1Angle * 2.34) * Math.sin(ghost1Angle * 3.45);
     // Update controls
-    controls.update()
+    controls.update();
 
     // Render
-    renderer.render(scene, camera)
+    renderer.render(scene, camera);
 
     // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
+    window.requestAnimationFrame(tick);
 }
 
 tick()
