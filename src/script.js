@@ -352,6 +352,7 @@ for(let i = 0; i < 30; i++){
 
 
 
+
 /**
  * Lights
  */  //color '#86cdff' => moon light
@@ -378,8 +379,8 @@ house.add(doorLight);
 const ghost1 = new THREE.PointLight('#8800ff', 6);
 const ghost2 = new THREE.PointLight('#ff0088', 6);
 const ghost3 = new THREE.PointLight('#008000', 6);
-
-scene.add(ghost1, ghost2, ghost3);
+const ghost4 = new THREE.PointLight('#f8f8ff', 6);
+scene.add(ghost1, ghost2, ghost3, ghost4);
 /**
  * Sizes
  */
@@ -479,6 +480,10 @@ ghost3.shadow.mapSize.width = 256;
 ghost3.shadow.mapSize.height = 256;
 ghost3.shadow.camera.far = 10;
 
+ghost4.shadow.mapSize.width = 256;
+ghost4.shadow.mapSize.height = 256;
+ghost4.shadow.camera.far = 10;
+
 
 /**
  * Sky
@@ -557,7 +562,12 @@ const tick = () =>
     const ghost3Angle =  elapsedTime * 0.23;
     ghost3.position.x = Math.cos(ghost3Angle) * 6;
     ghost3.position.z = Math.sin(ghost3Angle) * 6;
-    ghost3.position.y = Math.sin(ghost1Angle) * Math.sin(ghost1Angle * 2.34) * Math.sin(ghost1Angle * 3.45);
+    ghost3.position.y = Math.sin(ghost3Angle) * Math.sin(ghost3Angle * 2.34) * Math.sin(ghost3Angle * 3.45);
+
+    const ghost4Angle =  elapsedTime * 0.79;
+    ghost4.position.x = Math.cos(ghost4Angle) * 6;
+    ghost4.position.z = Math.sin(ghost4Angle) * 6;
+    ghost4.position.y = Math.sin(ghost4Angle) * Math.sin(ghost4Angle * 2.5) * Math.sin(ghost4Angle * 3.45);
     // Update controls
     controls.update();
 
