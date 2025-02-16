@@ -425,9 +425,16 @@ scene.add(directionalLight);
 const doorLight = new THREE.PointLight('#ff7d46', 5);
 // doorLight.position.y += houseMeasurements.height;
 // doorLight.position.z += houseMeasurements.depth / 2;
-doorLight.position.set(0,2.2, 2.5);
+doorLight.position.set(-3,0,5);
 house.add(doorLight);
 
+const lanternLight = new THREE.PointLight('#dff6ff', 5);
+lanternLight.position.set(0,2.2, 2.5);
+lanternLight.castShadow = true;
+
+
+
+scene.add(lanternLight);
 /**
  * Ghosts Section - PointLights
  */
