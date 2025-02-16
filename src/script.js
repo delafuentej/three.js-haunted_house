@@ -419,6 +419,11 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight('#86cdff', 1);
 directionalLight.position.set(3, 2, -8)
 scene.add(directionalLight);
+//Lantern light
+const lanternLight = new THREE.PointLight('#86cdff',5);
+lanternLight.position.set(0,2.2, 2.5);
+lanternLight.castShadow = true;
+scene.add(lanternLight);
 //having th directionalLight behind the house puts the front part in the shade
 // need to add  a door light using pointLight
 // DOOR LIGHT
@@ -428,13 +433,7 @@ const doorLight = new THREE.PointLight('#ff7d46', 5);
 doorLight.position.set(-3,0,5);
 house.add(doorLight);
 
-const lanternLight = new THREE.PointLight('#dff6ff', 5);
-lanternLight.position.set(0,2.2, 2.5);
-lanternLight.castShadow = true;
 
-
-
-scene.add(lanternLight);
 /**
  * Ghosts Section - PointLights
  */
