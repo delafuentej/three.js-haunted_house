@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { Timer } from 'three/addons/misc/Timer.js';
 import GUI from 'lil-gui';
@@ -19,6 +21,30 @@ const canvas = document.querySelector('canvas.webgl');
 const scene = new THREE.Scene();
 
 
+/**
+ * Models- GLTF Loader
+ */
+// Instantiate a loader
+const dracoLoader = new DRACOLoader();
+
+dracoLoader.setDecoderPath('/draco/');
+
+const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+
+
+gltfLoader.load(
+    '/models/Lantern/glTF-Draco/Lantern.gltf',
+    (gltf) => {
+        console.log(gltf);
+        const model = gltf.scene;
+        model.position.x = - 4;
+        model.position.z = 5;
+       
+        model.scale.set(0.1, 0.1, 0.1);
+        scene.add(model)
+    }
+)
 /**
  * Textures
  * 
@@ -349,7 +375,6 @@ for(let i = 0; i < 30; i++){
 
     graves.add(grave);
 }
-
 
 
 
