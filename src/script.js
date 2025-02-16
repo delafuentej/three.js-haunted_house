@@ -44,7 +44,37 @@ gltfLoader.load(
         model.scale.set(0.1, 0.1, 0.1);
         scene.add(model)
     }
+);
+
+gltfLoader.load(
+    '/models/DiffuseTransmissionPlant/glTF/DiffuseTransmissionPlant.gltf',
+    (gltf) => {
+        console.log(gltf);
+        const model = gltf.scene;
+        model.position.x = - 1.5;
+        model.position.z = 2.3;
+       
+        model.scale.set(1.1, 1.1, 1.1);
+        removeLightsFromModel(model);
+        scene.add(model)
+    }
 )
+
+function removeLightsFromModel(model) {
+    const lightsToRemove = [];
+
+    model.traverse((child) => {
+        if (child.isLight) {
+            lightsToRemove.push(child); // Guardamos las luces en un array
+        }
+    });
+
+    // Eliminamos las luces después de recorrer el modelo
+    lightsToRemove.forEach((light) => {
+        light.parent?.remove(light);
+    });
+}
+
 /**
  * Textures
  * 
