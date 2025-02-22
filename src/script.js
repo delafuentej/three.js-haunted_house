@@ -6,8 +6,6 @@ import { Sky } from 'three/addons/objects/Sky.js';
 import { Timer } from 'three/addons/misc/Timer.js';
 import GUI from 'lil-gui';
 
-
-
 /**
  * Base
  */
@@ -36,7 +34,7 @@ gltfLoader.setDRACOLoader(dracoLoader);
 gltfLoader.load(
     '/models/Lantern/glTF-Draco/Lantern.gltf',
     (gltf) => {
-        console.log(gltf);
+       // console.log(gltf);
         const model = gltf.scene;
         model.position.x = - 4;
         model.position.z = 5;
@@ -49,20 +47,19 @@ gltfLoader.load(
 gltfLoader.load(
     '/models/DiffuseTransmissionPlant/glTF/DiffuseTransmissionPlant.gltf',
     (gltf) => {
-        console.log(gltf);
+        //onsole.log(gltf);
         const model = gltf.scene;
         model.position.x = - 1.5;
         model.position.z = 2.3;
        
         model.scale.set(1.1, 1.1, 1.1);
         removeLightsFromModel(model);
-        scene.add(model)
+        house.add(model)
     }
 )
 
 function removeLightsFromModel(model) {
     const lightsToRemove = [];
-
     model.traverse((child) => {
         if (child.isLight) {
             lightsToRemove.push(child); // Guardamos las luces en un array
@@ -74,6 +71,97 @@ function removeLightsFromModel(model) {
         light.parent?.remove(light);
     });
 }
+
+
+gltfLoader.load(
+    '/models/SwingSet/SwingSet.gltf',
+    (gltf) =>
+    {
+        const model = gltf.scene;
+
+      
+
+       const children = [...model.children];
+
+       for (const child of children){
+       // console.log('child', child)
+     
+        child.position.set(5, 0, 1)
+        child.castShadow = true;
+        child.receiveShadow = true;
+       
+        scene.add(child)
+       }
+        
+        scene.add(model);
+    },
+   
+        
+)
+
+gltfLoader.load(
+    '/models/Gallow/Gallow.glb',
+    (gltf) =>
+    {
+        const model = gltf.scene;
+       // console.log('model',  model)
+       const children = [...model.children];
+
+       for (const child of children){
+       // console.log('child', child)
+        child.position.set(-5, 0, -1)
+        child.castShadow = true;
+        child.receiveShadow = true;
+        //child.rotation.y = Math.PI / 2;
+        house.add(child)
+       }
+
+    }
+        
+)
+
+
+gltfLoader.load(
+    '/models/Door/Door.glb',
+    (gltf) =>
+    {
+        const model = gltf.scene;
+
+      console.log(model)
+
+       const children = [...model.children];
+
+       for (const child of children){
+       // console.log('child', child)
+        child.position.set(
+            0, 
+           0, 
+            houseMeasurements.depth / 2 + 1
+        )
+        child.scale.set(1.1, 0.9, 0.9)
+        child.castShadow = true;
+        child.receiveShadow = true;
+       
+        scene.add(child)
+       }
+        
+        scene.add(model);
+    
+    },
+    (gltf) => {
+        console.log('progress')
+    },
+    (gltf) => {
+        console.log('error')
+    },
+
+        
+)
+
+
+
+
+
 
 /**
  * Textures
@@ -182,8 +270,8 @@ doorColorTexture.colorSpace = THREE.SRGBColorSpace
  */
 
 const  floorMeasurements = {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
     widthSegments: 100,
     heightSegments: 100,
 }
@@ -245,7 +333,9 @@ const walls = new THREE.Mesh(
 
 walls.position.y += houseMeasurements.height / 2;
 
+house.position.set(0, 0, 1);
 house.add(walls);
+
 
 // END WALLS
 
@@ -308,7 +398,7 @@ const door = new THREE.Mesh(
 
 door.position.y += doorMeasurements.width /2,
 door.position.z += houseMeasurements.depth / 2 + 0.01;
-house.add(door);
+// house.add(door);
 
 // 4. BUSHES
 const bushMeasurements = {
@@ -379,32 +469,56 @@ const gravesMaterial = new THREE.MeshStandardMaterial({
     metalnessMap: graveARMTexture,
     normalMap: graveNormalTexture
 });
+for (let i = 0; i < 40; i++) {
+    // To place the graves only at the rear,
+    // we limit the angle between 135° and 225° in radians.
+    const minAngle = Math.PI * (3 / 4);  // 135°
+    const maxAngle = Math.PI * (5 / 4);  // 225°
+    const angle = minAngle + Math.random() * (maxAngle - minAngle);
+
+    const radius = 3 + Math.random() * 10;
+    const x = Math.sin(angle) * radius;
+    const z = Math.cos(angle) * radius;
+
+    const grave = new THREE.Mesh(gravesGeometry, gravesMaterial);
+    grave.position.x = x;
+    grave.position.y = Math.random() * gravesMeasurements.height / 2;
+    grave.position.z = z;
+
+    grave.rotation.x = (Math.random() - 0.5) * 0.4;
+    grave.rotation.y = (Math.random() - 0.5) * 0.4;
+    grave.rotation.z = (Math.random() - 0.5) * 0.4;
+
+    graves.add(grave);
+}
 
 
-for(let i = 0; i < 30; i++){
+//for(let i = 0; i < 15; i++){
 //to distribute the tombs around the house we need the following: 
 // 1. a random angle between 0  and a full circle, 
 //using radians where Math.PI is = to 3.1415.. = half circle
 //since we want a full circle, we need "Math.PI * 2"
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 3 + Math.random() * 4;
-    const x = Math.sin(angle) * radius;
-    const z = Math.cos(angle) * radius;
+   // const angle = Math.random() * Math.PI * 2;
+   // const radius = 3 + Math.random() * 10;
+    //const x = Math.sin(angle) * radius;
+   // const z = Math.cos(angle) * radius;
 
 
 //in trigonometry, when you send the same angle to sine & cosine,
 // you end up with the "x" and "y" coordinates of a circle positioning
     // mesh
-    const grave =  new THREE.Mesh(gravesGeometry, gravesMaterial);
-    grave.position.x = x;
-    grave.position.y = Math.random() * gravesMeasurements.height/2;
-    grave.position.z = z;
-    grave.rotation.x = (Math.random() - 0.5) * 0.4;
-    grave.rotation.y = (Math.random() - 0.5)  * 0.4;
-    grave.rotation.z = (Math.random() - 0.5)  * 0.4;
+    //const grave =  new THREE.Mesh(gravesGeometry, gravesMaterial);
+   // grave.position.x = x;
+   // grave.position.y = Math.random() * gravesMeasurements.height/2;
+   // grave.position.z = z;
+//     grave.rotation.x = (Math.random() - 0.5) * 0.4;
+//     grave.rotation.y = (Math.random() - 0.5)  * 0.4;
+//     grave.rotation.z = (Math.random() - 0.5)  * 0.4;
 
-    graves.add(grave);
-}
+//     graves.add(grave);
+// }
+
+// HORROR SWING SET
 
 
 
@@ -420,18 +534,17 @@ const directionalLight = new THREE.DirectionalLight('#86cdff', 1);
 directionalLight.position.set(3, 2, -8)
 scene.add(directionalLight);
 //Lantern light
-const lanternLight = new THREE.PointLight('#86cdff',6);
-lanternLight.position.set(0 ,2.2, 2.5);
-lanternLight.castShadow = true;
-scene.add(lanternLight);
+const doorLight = new THREE.PointLight('#ff7d46',6);
+doorLight.position.set(0 ,2.4, 2.25);
+house.add(doorLight);
 //having th directionalLight behind the house puts the front part in the shade
 // need to add  a door light using pointLight
 // DOOR LIGHT
-const doorLight = new THREE.PointLight('#ff7d46', 5);
+const lanternLight = new THREE.PointLight('#ff7d46', 5);
 // doorLight.position.y += houseMeasurements.height;
 // doorLight.position.z += houseMeasurements.depth / 2;
-doorLight.position.set(-3,0,5);
-house.add(doorLight);
+lanternLight.position.set(-3,0,5);
+scene.add(lanternLight);
 
 
 /**
@@ -506,6 +619,7 @@ walls.castShadow = true;
 walls.receiveShadow = true;
 roof.castShadow = true;
 floor.receiveShadow = true;
+lanternLight.castShadow = true;
 
 for(const grave of graves.children) {
     grave.castShadow = true;
@@ -600,6 +714,8 @@ scene.fog = new THREE.FogExp2(
 /**
  * Animate
  */
+
+
 const timer = new Timer()
 
 const tick = () =>
@@ -620,7 +736,7 @@ const tick = () =>
     ghost2.position.y =  Math.sin(ghost2Angle) * Math.sin(ghost2Angle * 2.34) * Math.sin(ghost2Angle * 3.45);
 
 
-    const ghost3Angle =  elapsedTime * 0.23;
+    const ghost3Angle =  elapsedTime * 0.63;
     ghost3.position.x = Math.cos(ghost3Angle) * 6;
     ghost3.position.z = Math.sin(ghost3Angle) * 6;
     ghost3.position.y = Math.sin(ghost3Angle) * Math.sin(ghost3Angle * 2.34) * Math.sin(ghost3Angle * 3.45);
