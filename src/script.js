@@ -34,13 +34,20 @@ gltfLoader.setDRACOLoader(dracoLoader);
 gltfLoader.load(
     '/models/Lantern/glTF-Draco/Lantern.gltf',
     (gltf) => {
+        // to fix the issue with the lantern shadox
+        gltf.scene.traverse((child) => {
+            if (child.isMesh && child.material) {
+                child.castShadow = true;
+                child.receiveShadow = true; 
+            }
+        });
        // console.log(gltf);
         const model = gltf.scene;
-        model.position.x = - 4;
+        model.position.x =  -4;
         model.position.z = 5;
-       
+
         model.scale.set(0.1, 0.1, 0.1);
-        scene.add(model)
+        scene.add(model);
     }
 );
 
@@ -79,8 +86,6 @@ gltfLoader.load(
     {
         const model = gltf.scene;
 
-      
-
        const children = [...model.children];
 
        for (const child of children){
@@ -107,11 +112,22 @@ gltfLoader.load(
        // console.log('model',  model)
        const children = [...model.children];
 
+       
+
        for (const child of children){
+
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+    
+            // Asegurar que el material es adecuado para sombras
+            if (child.material) {
+                child.material.side = THREE.DoubleSide; // Si hay problemas con la orientación
+                child.material.needsUpdate = true;     // Forzar actualización
+            }
+        }
        // console.log('child', child)
         child.position.set(-5, 0, -1)
-        child.castShadow = true;
-        child.receiveShadow = true;
         //child.rotation.y = Math.PI / 2;
         house.add(child)
        }
@@ -298,6 +314,7 @@ const floor = new THREE.Mesh(
 );
 
 floor.rotation.x = - Math.PI * 0.5;
+floor.receiveShadow = true;
 scene.add(floor);
 
 gui.add(floor.material, 'displacementScale').min(0).max(1).step(0.001).name('floorDisplacementScale')
@@ -529,10 +546,54 @@ for (let i = 0; i < 40; i++) {
 const ambientLight = new THREE.AmbientLight('#86cdff', 0.275);
 scene.add(ambientLight);
 
+
 // Directional light
 const directionalLight = new THREE.DirectionalLight('#86cdff', 1);
-directionalLight.position.set(3, 2, -8)
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.far = 15;
+directionalLight.position.set(3, 6, -8);
+directionalLight.shadow.mapSize.width = 1024;
+directionalLight.shadow.mapSize.height = 1024;
 scene.add(directionalLight);
+
+//to add twicks
+gui.add(directionalLight, 'intensity')
+    .min(0)
+    .max(10)
+    .step(0.001)
+    .name('lightIntensity');
+
+gui.add(directionalLight.position, 'x')
+    .min(-10)
+    .max(10)
+    .step(0.001)
+    .name('lightX');
+
+gui.add(directionalLight.position, 'y')
+    .min(-10)
+    .max(10)
+    .step(0.001)
+    .name('lightY');
+
+
+gui.add(directionalLight.position, 'z')
+    .min(-10)
+    .max(10)
+    .step(0.001)
+    .name('lightZ');
+
+gui.add(directionalLight, 'castShadow');
+
+// const directionalLightShadowCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+// scene.add(directionalLightShadowCameraHelper);
+
+// Target
+directionalLight.target.position.set(0, 0, 0);
+scene.add(directionalLight.target);
+// the target is not in the scene so we need to add it
+// or update the matrix manually using the updateMatrixWorld method
+
+directionalLight.target.updateMatrixWorld();
 //Lantern light
 const doorLight = new THREE.PointLight('#ff7d46',6);
 doorLight.position.set(0 ,2.4, 2.25);
@@ -710,6 +771,13 @@ scene.fog = new THREE.FogExp2(
     fogMeasurements.color,
     fogMeasurements.density
 )
+
+/**
+ * Shadows
+ * To activate shadows, we need to enable them for the renderer, the light
+ */
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 /**
  * Animate
